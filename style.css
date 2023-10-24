@@ -1,0 +1,110 @@
+@import url('https://fonts.googleapis.com/css2?family=Playpen+Sans&display=swap');
+
+* {
+    font-family: 'Playpen Sans', cursive;
+}
+
+/* Main Header */
+h1 {
+    font-size: 46px;
+    color: #141E46;
+    font-weight: bold;
+    text-shadow: 3px 3px 5px rgba(0, 0, 0, 0.2);
+    margin: 30px 0;
+    background: #e6f7e9;
+    padding: 30px;
+    border-bottom: 4px solid #555;
+    letter-spacing: 2px;
+    border-radius: 10px;
+}
+
+/* Subheading Styles */
+h2 {
+    font-size: 24px;
+    color: #007acc;
+    font-weight: bold;
+    margin-top: 20px;
+    margin-bottom: 10px;
+    position: relative;
+}
+
+h2::before {
+    content: "";
+    position: absolute;
+    width: 50px;
+    height: 3px;
+    background-color: #007acc;
+    top: 50%;
+    transform: translateY(-50%);
+    left: -60px;
+}
+
+h2::after {
+    content: "";
+    position: absolute;
+    width: 20px;
+    height: 20px;
+    background-color: #007acc;
+    border-radius: 50%;
+    top: 50%;
+    transform: translateY(-50%);
+    right: -30px;
+}
+
+/* Sub-subheading Styles */
+h3 {
+    font-size: 30px;
+    color: #880000;
+    font-weight: bold;
+    margin-top: 15px;
+    margin-bottom: 10px;
+    position: relative;
+}
+
+h3::before {
+    content: "";
+    position: absolute;
+    width: 60px;
+    height: 3px;
+    background-color: #880000;
+    top: 50%;
+    transform: translateY(-50%);
+    left: -70px;
+}
+
+h3::after {
+    content: "";
+    position: absolute;
+    width: 30px;
+    height: 30px;
+    background-color: #880000;
+    border-radius: 50%;
+    top: 50%;
+    transform: translateY(-50%);
+    right: -40px;
+}
+
+
+/* Big font class */
+.big-font {
+    font-size: 30px;
+    color: #004499;
+    font-weight: bold;
+}
+
+/* Button styles */
+.stButton > button {
+    border-radius: 12px;
+    border: 2px solid #555;
+    padding: 10px 20px;
+    color: white;
+    background-color: #222;
+    transition: transform 0.3s ease-in-out;
+}
+
+.stButton > button:hover {
+    transform: scale(1.05);
+}
+
+
+

@@ -1,5 +1,7 @@
 from wordcloud import WordCloud
 import pandas as pd
+from textblob import TextBlob
+from vaderSentiment.vaderSentiment import SentimentIntensityAnalyzer
 import emoji
 from collections import Counter
 
@@ -155,10 +157,6 @@ def most_common_words(selected_user, df):
     return most_common_df
 
 
-import emoji
-from collections import Counter
-
-
 def emoji_helper(selected_user, df):
     # Filter messages based on selected user (unless it's "Overall Users")
     if selected_user != 'Overall Users':
@@ -179,6 +177,7 @@ def emoji_helper(selected_user, df):
     return emoji_df
 
 
+
 def monthly_timeline(selected_user, df):
 
     if selected_user != 'Overall Users':
@@ -196,21 +195,29 @@ def monthly_timeline(selected_user, df):
 
 
 def daily_timeline(selected_user, df):
-
     if selected_user != 'Overall Users':
         df = df[df['username'] == selected_user]
 
-    timeline = df.groupby('date').count()['message'].reset_index()  # Updated here
-
+    timeline = df.groupby('date').count()['message'].reset_index()
+    timeline = timeline.set_index('date')
     return timeline
 
 
-def week_activity_map(selected_user, df):
+def user_activity_over_time(selected_user, df):
+    if selected_user != 'Overall Users':
+        df = df[df['username'] == selected_user]
+    user_activity = df.groupby(['date', 'username'])['message'].count().unstack().fillna(0)
+    return user_activity
 
+
+def week_activity_map(selected_user, df):
     if selected_user != 'Overall Users':
         df = df[df['username'] == selected_user]
 
-    return df['day'].value_counts()
+    ordered_days = ["Monday", "Tuesday", "Wednesday", "Thursday", "Friday", "Saturday", "Sunday"]
+    day_counts = df['day'].value_counts().reindex(ordered_days).fillna(0)
+
+    return day_counts
 
 
 def month_activity_map(selected_user, df):
@@ -229,3 +236,23 @@ def activity_heatmap(selected_user, df):
     user_heatmap = df.pivot_table(index='day', columns='period', values='message', aggfunc='count').fillna(0)
 
     return user_heatmap
+
+
+def extract_sentiment(text, method):
+    if method == "textblob":
+        analysis = TextBlob(text)
+        if analysis.sentiment.polarity > 0:
+            return 'positive'
+        elif analysis.sentiment.polarity == 0:
+            return 'neutral'
+        else:
+            return 'negative'
+    elif method == "vader":
+        analyzer = SentimentIntensityAnalyzer()
+        score = analyzer.polarity_scores(text)
+        if score['compound'] > 0.05:
+            return 'positive'
+        elif score['compound'] < -0.05:
+            return 'negative'
+        else:
+            return 'neutral'
