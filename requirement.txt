@@ -1,7 +1,13 @@
 streamlit
+pandas
+numpy
 matplotlib
 seaborn
-urlextract
+pillow
+plotly
+sklearn
 wordcloud
-pandas
+textblob
+vaderSentiment
 emoji
+urlextract
