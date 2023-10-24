@@ -15,7 +15,7 @@
 
 ## 🌟 Introduction
 
-**Wanalyicia** is a cutting-edge tool designed for individuals and businesses to interpret their WhatsApp chat narratives. It's crafted for those who wish to extract value from chat data, be it for personal reflections or business analytics.
+**Wanalyicia** is an insightful tool that lets users dive deep into their WhatsApp chat narratives, unveiling a spectrum of data-driven revelations. This tool gives users the ability to comprehend various facets of their chat – from sentiment landscapes to user engagement metrics.
 
 Why Wanalycia? Because every conversation carries insights. With Wanalyicia, you don't just read messages. You understand them.
 
