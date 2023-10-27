@@ -9,5 +9,5 @@ sklearn
 wordcloud
 textblob
 vaderSentiment
-emoji
+emoji==2.8.0
 urlextract
