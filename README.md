@@ -67,7 +67,7 @@ Ensure your environment has the following packages:
 - seaborn
 - pillow
 - plotly
-- sklearn
+- scikit-learn
 - wordcloud
 - textblob
 - vaderSentiment
