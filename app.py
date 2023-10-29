@@ -319,7 +319,7 @@ if uploaded_file:
             wc_img = Image.new("RGB", (wordcloud_image.width, wordcloud_image.height))
             wc_array = np.array(wordcloud_image)
             wc_img.paste(Image.fromarray(wc_array), (0, 0))
-            st.subheader("Word Cloud")
+            st.subheader("Word Cloud:")
             st.image(wc_img, use_column_width=True, caption="Word Cloud of Chat")
 
             st.write("---")
