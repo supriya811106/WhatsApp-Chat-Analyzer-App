@@ -17,6 +17,8 @@
 
 **Wanalyicia** is an insightful tool that lets users dive deep into their WhatsApp chat narratives, unveiling a spectrum of data-driven revelations. This tool gives users the ability to comprehend various facets of their chat – from sentiment landscapes to user engagement metrics.
 
+Experience **Wanalyicia** live: [WhatsApp Chat Analyzer](https://whastapp-chat-anlyzer-lzi5.onrender.com/)
+
 Why Wanalycia? Because every conversation carries insights. With Wanalyicia, you don't just read messages. You understand them.
 
 ## 🔥 Features
@@ -48,7 +50,7 @@ Why Wanalycia? Because every conversation carries insights. With Wanalyicia, you
 Follow these steps if you're looking to understand your WhatsApp conversations:
 
 1. Start by exporting the chat (without media) from WhatsApp.
-2. Head over to the **Wanalycia** portal.
+2. Head over to the **Wanalycia** portal. live Demo: [WhatsApp Chat Analyzer](https://whastapp-chat-anlyzer-lzi5.onrender.com/)
 3. Click on the upload icon to insert the chat file.
 4. If it's a group chat, you can select specific users for analysis.
 5. Choose the type of analysis you're interested in.
