@@ -348,9 +348,9 @@ if uploaded_file:
 
             st.subheader("Daily Timeline")
             st.line_chart(daily_timeline)
+            
 
 st.sidebar.markdown("---")
-
 st.sidebar.header("We Value Your Feedback")
 
 # Dropdown for selecting feedback
