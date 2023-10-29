@@ -85,7 +85,7 @@ Ensure your environment has the following packages:
    source venv/bin/activate (or 'venv\Scripts\activate' on Windows)
 3. **Install** the necessary packages:
    ```bash
-   pip install -r requirements.txt
+   pip install -r requirement.txt
 4. **Run** the Streamlit application:
    ```bash
    streamlit run app.py
