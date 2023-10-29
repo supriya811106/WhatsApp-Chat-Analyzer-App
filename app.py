@@ -360,6 +360,7 @@ if was_helpful != "Please choose an option":
         feedback = st.sidebar.text_area("Kindly share any additional comments or suggestions...")
 
         if st.sidebar.button("Submit Feedback"):
+            st.sidebar.success("Thank you for sharing your thoughts!")
 
 st.sidebar.markdown("---")
 st.sidebar.markdown("© 2023 Wanalyicia. All rights reserved.")
