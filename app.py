@@ -349,18 +349,19 @@ if uploaded_file:
             st.subheader("Daily Timeline")
             st.line_chart(daily_timeline)
 
+st.sidebar.markdown("---")
+
 st.sidebar.header("We Value Your Feedback")
 
 # Dropdown for selecting feedback
 was_helpful = st.sidebar.selectbox("Did you find our insights useful?", ["Please choose an option", "Yes, very helpful", "Somewhat helpful", "Not helpful"])
 
-# Text area for additional feedback
-additional_feedback = st.sidebar.text_area("Any suggestions or feedback?")
+if was_helpful != "Please choose an option":
 
-# Submit feedback
-if st.sidebar.button("Submit Feedback"):
-    # Process feedback (save to a database or send to an email)
-    st.sidebar.success("Thank you for your feedback!")
+    if was_helpful != "Please choose an option":
+        feedback = st.sidebar.text_area("Kindly share any additional comments or suggestions...")
+
+        if st.sidebar.button("Submit Feedback"):
 
 st.sidebar.markdown("---")
 st.sidebar.markdown("© 2023 Wanalyicia. All rights reserved.")
