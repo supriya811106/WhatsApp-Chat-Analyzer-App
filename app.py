@@ -352,10 +352,16 @@ if uploaded_file:
 st.sidebar.header("We Value Your Feedback")
 
 # Dropdown for selecting feedback
-was_helpful = st.sidebar.selectbox("Did you find our insights useful?", ["Please choose an option", "Yes", "No"])
+was_helpful = st.sidebar.selectbox("Did you find our insights useful?", ["Please choose an option", "Yes, very helpful", "Somewhat helpful", "Not helpful"])
 
-if was_helpful != "Please choose an option":
-    feedback = st.sidebar.text_area("Kindly share any additional comments or suggestions...")
+# Text area for additional feedback
+additional_feedback = st.sidebar.text_area("Any suggestions or feedback?")
 
-    if st.sidebar.button("Submit Feedback"):
-        st.sidebar.success("Thank you for sharing your thoughts!")
+# Submit feedback
+if st.sidebar.button("Submit Feedback"):
+    # Process feedback (save to a database or send to an email)
+    st.sidebar.success("Thank you for your feedback!")
+
+st.sidebar.markdown("---")
+st.sidebar.markdown("© 2023 Wanalyicia. All rights reserved.")
+
