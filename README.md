@@ -107,4 +107,4 @@ Remember to regularly sync your fork with the upstream repository and ensure all
 ## ✉ Feedback & Contact
 Every piece of feedback helps to create a better experience. Share your thoughts, critiques, or even praises:
 
-Email: supriya811106@gmail.com
+Email: supriyasuman0708@gmail.com
