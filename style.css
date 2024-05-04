@@ -72,19 +72,6 @@ h3::before {
     left: -70px;
 }
 
-h3::after {
-    content: "";
-    position: absolute;
-    width: 30px;
-    height: 30px;
-    background-color: #880000;
-    border-radius: 50%;
-    top: 50%;
-    transform: translateY(-50%);
-    right: -40px;
-}
-
-
 /* Big font class */
 .big-font {
     font-size: 30px;

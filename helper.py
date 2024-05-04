@@ -1,7 +1,9 @@
 from wordcloud import WordCloud
+import numpy as np
 import pandas as pd
 from textblob import TextBlob
-from vaderSentiment.vaderSentiment import SentimentIntensityAnalyzer
+from sklearn.feature_extraction.text import CountVectorizer, TfidfVectorizer
+from sklearn.decomposition import LatentDirichletAllocation
 import emoji
 from collections import Counter
 
@@ -44,6 +46,53 @@ def fetch_stats(selected_user, df):
 
     return total_messages, total_word_count, total_media_messages, total_url_count, total_emoji_count, len(deleted_message), len(edited_messages), len(shared_contacts), len(shared_locations)
 
+def extract_sentiment(message):
+    analysis = TextBlob(message)
+    if analysis.sentiment.polarity > 0:
+        return 'positive'
+    elif analysis.sentiment.polarity == 0:
+        return 'neutral'
+    else:
+        return 'negative'
+
+
+def perform_tfidf_analysis(messages):
+    vectorizer = TfidfVectorizer(max_df=0.95, min_df=2, stop_words='english')
+    tfidf = vectorizer.fit_transform(messages)
+    words = vectorizer.get_feature_names_out()
+    top_n = 5
+    row_id = np.argmax(tfidf.toarray(), axis=0)
+    top_words = [(words[i], tfidf[row_id[i], i]) for i in np.argsort(-tfidf.toarray().sum(axis=0))[:top_n]]
+    return top_words
+
+
+def perform_lda_analysis(messages, num_topics=5):
+    vectorizer = CountVectorizer(max_df=0.95, min_df=2, stop_words='english')
+    bow = vectorizer.fit_transform(messages)
+    words = vectorizer.get_feature_names_out()
+    lda = LatentDirichletAllocation(n_components=num_topics, random_state=0)
+    lda.fit(bow)
+    topic_words = []
+    for i, topic in enumerate(lda.components_):
+        top_words_array = topic.argsort()[-5:][::-1]
+        topic_list = [words[j] for j in top_words_array]
+        topic_words.append(f"Topic {i + 1}: {' | '.join(topic_list)}")
+    return topic_words
+
+
+def perform_comparative_analysis(df, users_to_compare, start_date, end_date):
+    # Ensure dates are handled as datetime64
+    start_date = np.datetime64(start_date)
+    end_date = np.datetime64(end_date + pd.Timedelta(days=1))  # Including the end date
+
+    # Filter the DataFrame by date and selected users
+    date_filtered_df = df[(df["date"].dt.date >= start_date) & (df["date"].dt.date < end_date)]
+    user_filtered_df = date_filtered_df[date_filtered_df["username"].isin(users_to_compare)]
+
+    # Count occurrences of each user
+    users_activity = user_filtered_df["username"].value_counts()
+    return users_activity
+
 
 def most_least_busy_users(df):
     message_counts = df['username'].value_counts()
@@ -54,107 +103,57 @@ def most_least_busy_users(df):
     return top_users, bottom_users
 
 
-def user_activity_in_chat(df):
-    # Adjusted the media counting logic
-    df['Media_Shared'] = df['message'].apply(lambda x: 1 if 'Media' in x else 0)
-
-    # Count shared Contacts
-    phone_pattern = r'\+?\d{2,4}[\s-]?\d{10}'
-
-    # Count shared Location
-    location_pattern = r'//maps\.google\.com/\?q=\d+\.\d+,\d+\.\d+'
-
-    # Basic aggregations
-    agg_df = df.groupby('username').agg(
-        Total_Messages=pd.NamedAgg(column='message', aggfunc='size'),
-        Total_Words=pd.NamedAgg(column='total_word', aggfunc='sum'),
-        Media_Shared=pd.NamedAgg(column='Media_Shared', aggfunc='sum'),
-        Links_Shared=pd.NamedAgg(column='url_count', aggfunc='sum'),
-        Emojis_Shared=pd.NamedAgg(column='emoji_count', aggfunc='sum'),
-        Deleted_Messages=pd.NamedAgg(column='message',
-                                     aggfunc=lambda x: x.str.contains("This message was deleted").sum()),
-        Edited_Messages=pd.NamedAgg(column='message',
-                                    aggfunc=lambda x: x.str.contains("<This message was edited>").sum()),
-        Shared_Contacts=pd.NamedAgg(column='message',
-                                    aggfunc=lambda x: x.str.contains(phone_pattern, case=False).sum() + x.str.contains(
-                                        '.vcf', case=False).sum()),
-        Shared_Locations=pd.NamedAgg(column='message',
-                                     aggfunc=lambda x: x.str.contains(location_pattern, case=False).sum())
-    ).reset_index()
-
-    # Percentage calculation
-    agg_df['Percentage'] = round((agg_df['Total_Messages'] / df.shape[0]) * 100, 2)
-
-    # Desired column order
-    column_order = [
-        'username',
-        'Total_Messages',
-        'Percentage',
-        'Total_Words',
-        'Media_Shared',
-        'Links_Shared',
-        'Emojis_Shared',
-        'Deleted_Messages',
-        'Edited_Messages',
-        'Shared_Contacts',
-        'Shared_Locations'
-    ]
-    # Sort dataframe by Total_Messages in descending order
-    agg_df = agg_df.sort_values(by='Total_Messages', ascending=False)
-
-    # Reset index and increment by 1
-    agg_df = agg_df.reset_index(drop=True)
-    agg_df.index = agg_df.index + 1
-
-    return agg_df
-
-
-def create_wordcloud(selected_user,df):
-
-    f = open('stop_hinglish.txt', 'r')
-    stop_words = f.read()
-
+def user_activity_over_time(selected_user, df):
     if selected_user != 'Overall Users':
         df = df[df['username'] == selected_user]
 
-    temp = df[df['message'] != '<Media omitted>']
-    temp = temp[temp['message'] != "This message was deleted"]
-    temp = temp[temp['message'] != '<This message was edited>']
+    user_activity = df.groupby(['date', 'username'])['message'].count().unstack().fillna(0)
 
-    def remove_stop_words(message):
-        y = []
-        for word in message.lower().split():
-            if word not in stop_words:
-                y.append(word)
-        return " ".join(y)
-
-    wc = WordCloud(width=500,height=500,min_font_size=10,background_color='white')
-    temp['message'] = temp['message'].apply(remove_stop_words)
-    df_wc = wc.generate(temp['message'].str.cat(sep=" "))
-    return df_wc
+    return user_activity
 
 
-def most_common_words(selected_user, df):
-
-    f = open('stop_hinglish.txt', 'r')
-    stop_words = f.read()
-
+def week_activity_map(selected_user, df):
     if selected_user != 'Overall Users':
         df = df[df['username'] == selected_user]
 
-    temp = df[df['message'] != '<Media omitted>']
-    temp = temp[temp['message'] != "This message was deleted"]
-    temp = temp[temp['message'] != '<This message was edited>']
+    ordered_days = ["Monday", "Tuesday", "Wednesday", "Thursday", "Friday", "Saturday", "Sunday"]
+    day_counts = df['day'].value_counts().reindex(ordered_days).fillna(0)
 
-    words = []
+    return day_counts
 
-    for message in temp['message']:
-        for word in message.lower().split():
-            if word not in stop_words:
-                words.append(word)
 
-    most_common_df = pd.DataFrame(Counter(words).most_common(20))
-    return most_common_df
+def month_activity_map(selected_user, df):
+    if selected_user != 'Overall Users':
+        df = df[df['username'] == selected_user]
+
+    return df['month'].value_counts()
+
+
+def activity_heatmap(selected_user, df):
+    if selected_user != 'Overall Users':
+        df = df[df['username'] == selected_user]
+
+    user_heatmap = df.pivot_table(index='day', columns='period', values='message', aggfunc='count').fillna(0)
+
+    return user_heatmap
+
+
+def create_wordcloud(selected_user, df, stopwords_path='stop_hinglish.txt'):
+    with open(stopwords_path, 'r') as f:
+        stop_words = set(f.read().split())
+
+    # Filter DataFrame according to user and message relevance
+    if selected_user != 'Overall Users':
+        df = df[df['username'] == selected_user]
+
+    # Exclude specific types of messages
+    df = df[~df['message'].isin(['<Media omitted>', 'This message was deleted', '<This message was edited>'])]
+
+    # Using WordCloud with stopwords
+    wc = WordCloud(width=800, height=400, min_font_size=10, background_color='white', stopwords=stop_words)
+    df_wc = wc.generate(' '.join(df['message']))  # Generate from all messages concatenated
+
+    return df_wc.to_image()
 
 
 def emoji_helper(selected_user, df):
@@ -177,9 +176,7 @@ def emoji_helper(selected_user, df):
     return emoji_df
 
 
-
 def monthly_timeline(selected_user, df):
-
     if selected_user != 'Overall Users':
         df = df[df['username'] == selected_user]
 
@@ -201,58 +198,3 @@ def daily_timeline(selected_user, df):
     timeline = df.groupby('date').count()['message'].reset_index()
     timeline = timeline.set_index('date')
     return timeline
-
-
-def user_activity_over_time(selected_user, df):
-    if selected_user != 'Overall Users':
-        df = df[df['username'] == selected_user]
-    user_activity = df.groupby(['date', 'username'])['message'].count().unstack().fillna(0)
-    return user_activity
-
-
-def week_activity_map(selected_user, df):
-    if selected_user != 'Overall Users':
-        df = df[df['username'] == selected_user]
-
-    ordered_days = ["Monday", "Tuesday", "Wednesday", "Thursday", "Friday", "Saturday", "Sunday"]
-    day_counts = df['day'].value_counts().reindex(ordered_days).fillna(0)
-
-    return day_counts
-
-
-def month_activity_map(selected_user, df):
-
-    if selected_user != 'Overall Users':
-        df = df[df['username'] == selected_user]
-
-    return df['month'].value_counts()
-
-
-def activity_heatmap(selected_user, df):
-
-    if selected_user != 'Overall Users':
-        df = df[df['username'] == selected_user]
-
-    user_heatmap = df.pivot_table(index='day', columns='period', values='message', aggfunc='count').fillna(0)
-
-    return user_heatmap
-
-
-def extract_sentiment(text, method):
-    if method == "textblob":
-        analysis = TextBlob(text)
-        if analysis.sentiment.polarity > 0:
-            return 'positive'
-        elif analysis.sentiment.polarity == 0:
-            return 'neutral'
-        else:
-            return 'negative'
-    elif method == "vader":
-        analyzer = SentimentIntensityAnalyzer()
-        score = analyzer.polarity_scores(text)
-        if score['compound'] > 0.05:
-            return 'positive'
-        elif score['compound'] < -0.05:
-            return 'negative'
-        else:
-            return 'neutral'
