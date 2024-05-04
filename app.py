@@ -168,11 +168,12 @@ def main():
                     st.bar_chart(bottom)
                     st.write("---")
 
-                # Creating a line chart to visualize user activity over time
-                st.subheader("User Activity Over Time")
-                user_activity = helper.user_activity_over_time(selected_user, df)
-                st.line_chart(user_activity)
-                st.write("---")
+                else:
+                    # Creating a line chart to visualize user activity over time
+                    st.subheader("User Activity Over Time")
+                    user_activity = helper.user_activity_over_time(selected_user, df)
+                    st.line_chart(user_activity)
+                    st.write("---")
 
                 # Week Activity Map
                 st.subheader("Week Activity Map")
